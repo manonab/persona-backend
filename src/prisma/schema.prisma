@@ -26,33 +26,37 @@ enum TestStatus {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
-  email     String   @unique
+  email     String    @unique
   password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   tests     Test[]
+  Persona   Persona[]
 }
 
 model Test {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   userId      String
   url         String
-  status      TestStatus @default(PENDING)
-  startedAt   DateTime  @default(now())
+  status      TestStatus    @default(PENDING)
+  type        String?
+  startedAt   DateTime      @default(now())
   completedAt DateTime?
-  user        User      @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
   results     Result[]
   personas    TestPersona[]
 }
 
 model Persona {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   name        String
   description String
   constraints Json
+  createdBy   String?
+  creator     User?         @relation(fields: [createdBy], references: [id])
   tests       TestPersona[]
   results     Result[]
 }
@@ -63,6 +67,7 @@ model Result {
   personaId          String
   accessibilityScore Float
   uxScore            Float
+  performanceScore   Float?
   aiRecommendations  Json
   createdAt          DateTime @default(now())
   test               Test     @relation(fields: [testId], references: [id])
@@ -70,9 +75,9 @@ model Result {
 }
 
 model TestPersona {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   testId    String
   personaId String
-  test      Test     @relation(fields: [testId], references: [id])
-  persona   Persona  @relation(fields: [personaId], references: [id])
+  test      Test    @relation(fields: [testId], references: [id])
+  persona   Persona @relation(fields: [personaId], references: [id])
 }

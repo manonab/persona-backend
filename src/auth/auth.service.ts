@@ -11,7 +11,7 @@ export class AuthService {
   ) {}
 
   async signup(userDto: any) {
-    const { name, email, password } = userDto;
+    const { name, email, password, role = 'USER' } = userDto;
 
     const existingUser = await this.prisma.user.findUnique({
       where: { email },
@@ -23,7 +23,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await this.prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: { name, email, password: hashedPassword, role },
     });
 
     return {
@@ -44,7 +44,7 @@ export class AuthService {
       throw new UnauthorizedException('Mot de passe incorrect');
     }
 
-    const payload = { email: user.email, user_id: user.id };
+    const payload = { email: user.email, sub: user.id, role: user.role };
     const token = this.jwtService.sign(payload);
 
     return {

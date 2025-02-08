@@ -9,6 +9,7 @@ async function bootstrap() {
     .setTitle('AI Persona Playground API')
     .setDescription("Documentation de l'API pour la gestion des tests UX")
     .setVersion('1.0')
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
