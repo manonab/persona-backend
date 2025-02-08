@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TestStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tests     Test[]
+}
+
+model Test {
+  id          String   @id @default(uuid())
+  userId      String
+  url         String
+  status      TestStatus @default(PENDING)
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  user        User      @relation(fields: [userId], references: [id])
+  results     Result[]
+  personas    TestPersona[]
+}
+
+model Persona {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  constraints Json
+  tests       TestPersona[]
+  results     Result[]
+}
+
+model Result {
+  id                 String   @id @default(uuid())
+  testId             String
+  personaId          String
+  accessibilityScore Float
+  uxScore            Float
+  aiRecommendations  Json
+  createdAt          DateTime @default(now())
+  test               Test     @relation(fields: [testId], references: [id])
+  persona            Persona  @relation(fields: [personaId], references: [id])
+}
+
+model TestPersona {
+  id        String   @id @default(uuid())
+  testId    String
+  personaId String
+  test      Test     @relation(fields: [testId], references: [id])
+  persona   Persona  @relation(fields: [personaId], references: [id])
+}
