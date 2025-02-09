@@ -21,14 +21,12 @@ export class TestsController {
   constructor(private testsService: TestsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Lancer un test UX (site web ou maquette Figma)' })
+  @ApiOperation({ summary: 'Lancer un test sur un site web' })
   @ApiBody({
     schema: {
       example: {
         url: 'https://example.com',
         personaId: 'persona-uuid',
-        isFigma: false,
-        figmaToken: 'figma-api-token (optionnel pour les maquettes Figma)',
       },
     },
   })
@@ -38,8 +36,6 @@ export class TestsController {
     body: {
       url: string;
       personaId: string;
-      isFigma?: boolean;
-      figmaToken?: string;
     },
   ) {
     const userId = req.user.userId;
@@ -47,8 +43,6 @@ export class TestsController {
       userId,
       body.url,
       body.personaId,
-      body.isFigma || false,
-      body.figmaToken,
     );
   }
 
