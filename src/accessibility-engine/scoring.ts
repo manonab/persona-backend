@@ -2,22 +2,38 @@ export function calculateScore(issues, persona) {
   let accessibilityScore = 100;
   let uxScore = 100;
 
-  issues.forEach(issue => {
-    if (issue.severity === 'Critique') {
-      accessibilityScore -= 10;
-      uxScore -= 5; // Impact sur l'UX
+  issues.forEach((issue) => {
+    let penalty = 0;
+
+    switch (issue.severity) {
+      case 'Critique':
+        penalty = 10;
+        break;
+      case 'Modéré':
+        penalty = 5;
+        break;
+      case 'Faible':
+        penalty = 2;
+        break;
     }
-    if (issue.severity === 'Modéré') {
-      accessibilityScore -= 5;
-      uxScore -= 3;
+
+    if (persona.constraints?.vision === 'low' && issue.rule === '1.4.3') {
+      penalty *= 1.5;
     }
-    if (issue.severity === 'Faible') {
-      accessibilityScore -= 2;
+
+    if (
+      persona.constraints?.inputMethod === 'keyboard_only' &&
+      issue.rule === '2.1.1'
+    ) {
+      penalty *= 1.5;
     }
+
+    accessibilityScore -= penalty;
+    uxScore -= penalty / 2;
   });
 
   return {
-    accessibilityScore: Math.max(0, accessibilityScore),
-    uxScore: Math.max(0, uxScore),
+    accessibilityScore: Math.max(10, accessibilityScore),
+    uxScore: Math.max(10, uxScore),
   };
 }
